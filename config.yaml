@@ -1,0 +1,89 @@
+## ============================================================
+## ContentBlitz - AI Content Marketing Assistant - Configuration
+## ============================================================
+
+llm:
+  provider: "openai"              # openai | anthropic
+  model: "gpt-4o"                 # or claude-sonnet-4-6
+  temperature: 0.7                # higher = more creative content
+  max_tokens: 4096
+  streaming: false
+
+## Faster/cheaper model for lightweight tasks (routing, classification)
+llm_fast:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  temperature: 0.0
+  max_tokens: 16
+
+research:
+  provider: "tavily"              # tavily | serpapi
+  search_depth: "advanced"        # basic | advanced
+  max_results: 5
+  cache_ttl_seconds: 1800         # 30-minute result cache
+  include_answer: true
+
+image_generation:
+  provider: "openai"              # openai (dall-e-3)
+  model: "dall-e-3"
+  size: "1024x1024"               # 1024x1024 | 1792x1024 | 1024x1792
+  quality: "hd"                   # standard | hd
+  output_dir: "generated_images"
+
+agents:
+  query_handler:
+    name: "Query Handler Agent"
+    description: "Classifies user intent and routes to the correct content pipeline"
+    temperature: 0.0
+  research:
+    name: "Deep Research Agent"
+    description: "Conducts multi-source web research and produces structured analysis"
+    temperature: 0.3
+    max_tokens: 4096
+  content_strategist:
+    name: "Content Strategist Agent"
+    description: "Transforms research into actionable content briefs with angles and messaging"
+    temperature: 0.5
+    max_tokens: 2048
+  blog_writer:
+    name: "SEO Blog Writer Agent"
+    description: "Creates SEO-optimized long-form blog posts with H1/H2 structure and meta descriptions"
+    temperature: 0.7
+    max_tokens: 4096
+    min_words: 800
+  linkedin_writer:
+    name: "LinkedIn Post Writer Agent"
+    description: "Generates engaging LinkedIn posts with hashtag strategy and engagement hooks"
+    temperature: 0.8
+    max_tokens: 1024
+    max_chars: 1600
+  image_generator:
+    name: "Image Generation Agent"
+    description: "Generates marketing visuals via DALL-E 3 with LLM-enhanced prompts"
+    temperature: 0.9
+
+content:
+  blog:
+    min_words: 800
+    target_keyword_density: 0.02  # 2%
+    meta_description_max_chars: 160
+    min_h2_count: 3
+  linkedin:
+    min_chars: 1200
+    max_chars: 1600
+    min_hashtags: 8
+    max_hashtags: 12
+  seo_score_threshold: 60         # minimum acceptable SEO score (0-100)
+  quality_score_threshold: 60     # minimum acceptable quality score (0-100)
+
+observability:
+  langsmith_enabled: false        # set LANGCHAIN_TRACING_V2=true to enable
+  langfuse_enabled: false         # set LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY to enable
+  log_level: "INFO"
+
+ui:
+  page_title: "ContentBlitz"
+  page_icon: "⚡"
+  layout: "wide"
+  show_agent_pipeline: true
+  theme: "light"
