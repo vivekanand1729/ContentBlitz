@@ -9,12 +9,12 @@ from src.core.llm import get_llm
 from src.core.state import ContentState
 
 
-PROMPT_ENHANCER = """You are an expert at writing DALL-E 3 image generation prompts for marketing content.
+PROMPT_ENHANCER = """You are an expert at writing image generation prompts for marketing content.
 
 Content topic: {query}
 Context: {context}
 
-Write a single, highly detailed DALL-E 3 image prompt (150-200 words) that:
+Write a single, highly detailed image prompt (150-200 words) that:
 - Creates a professional marketing/business visual
 - Specifies art style (photorealistic, digital art, flat design, 3D render, etc.)
 - Describes composition, colors, lighting, and mood
@@ -41,13 +41,31 @@ class ImageGeneratorAgent:
             return f"Professional marketing image about {query}, photorealistic, clean composition, vibrant colors, high quality"
 
     def _generate_and_save(self, prompt: str) -> tuple[str, str]:
-        response = self.openai_client.images.generate(
-            model=config.IMAGE_MODEL,
-            prompt=prompt,
-            size=config.IMAGE_SIZE,
-            quality=config.IMAGE_QUALITY,
-            n=1,
-        )
+        model = config.IMAGE_MODEL
+        size = config.IMAGE_SIZE
+        kwargs: dict = {"model": model, "prompt": prompt, "size": size, "n": 1}
+
+        # dall-e-3 supports quality; dall-e-2 does not
+        if model == "dall-e-3":
+            kwargs["quality"] = config.IMAGE_QUALITY
+
+        try:
+            response = self.openai_client.images.generate(**kwargs)
+        except Exception as e:
+            err = str(e)
+            # Fall back to dall-e-2 if this project lacks dall-e-3 access
+            if model == "dall-e-3" and ("403" in err or "model_not_found" in err or "does not have access" in err):
+                # dall-e-2 only supports up to 1024x1024
+                safe_size = size if size in ("256x256", "512x512", "1024x1024") else "1024x1024"
+                response = self.openai_client.images.generate(
+                    model="dall-e-2",
+                    prompt=prompt[:1000],  # dall-e-2 has a 1000-char prompt limit
+                    size=safe_size,
+                    n=1,
+                )
+            else:
+                raise
+
         url = response.data[0].url
         filename = f"{uuid.uuid4().hex[:12]}.png"
         local_path = os.path.join(config.IMAGES_DIR, filename)
