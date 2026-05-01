@@ -22,7 +22,7 @@ Respond with ONLY the category name (lowercase). No explanation, no punctuation.
 
 class QueryHandlerAgent:
     def __init__(self):
-        self.llm = get_llm(max_tokens=10)
+        self.llm = get_llm(max_tokens=16, fast=True)
 
     def run(self, state: ContentState) -> dict:
         messages = state.get("messages", [])
