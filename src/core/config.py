@@ -44,13 +44,10 @@ class Config:
 
     def __init__(self):
         # API Keys — secrets source priority: st.secrets (injected) → .env → default ""
-        self.ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
         self.TAVILY_API_KEY: str = os.getenv("TAVILY_API_KEY", "")
 
         # LLM
-        self.LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", _y("llm", "provider", default="openai"))
-        self.ANTHROPIC_MODEL: str = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
         self.OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", _y("llm", "model", default="gpt-4o"))
         self.LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", _y("llm", "temperature", default=0.7)))
         self.LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", _y("llm", "max_tokens", default=4096)))
@@ -81,15 +78,11 @@ class Config:
     def validate(self) -> list[str]:
         """Return list of missing required API keys."""
         missing = []
-        if self.LLM_PROVIDER == "anthropic" and not self.ANTHROPIC_API_KEY:
-            missing.append("ANTHROPIC_API_KEY")
-        if self.LLM_PROVIDER == "openai" and not self.OPENAI_API_KEY:
-            missing.append("OPENAI_API_KEY")
         if not self.OPENAI_API_KEY:
-            missing.append("OPENAI_API_KEY (required for DALL-E 3)")
+            missing.append("OPENAI_API_KEY")
         if not self.TAVILY_API_KEY:
             missing.append("TAVILY_API_KEY")
-        return list(dict.fromkeys(missing))
+        return missing
 
     @property
     def is_ready(self) -> bool:

@@ -25,11 +25,8 @@ if str(ROOT) not in sys.path:
 #    imported yet, injection here ensures the correct values are picked up.
 _SECRET_KEYS = [
     "OPENAI_API_KEY",
-    "ANTHROPIC_API_KEY",
     "TAVILY_API_KEY",
-    "LLM_PROVIDER",
     "OPENAI_MODEL",
-    "ANTHROPIC_MODEL",
 ]
 
 try:
@@ -174,16 +171,16 @@ def _show_setup_banner(missing: list[str]) -> None:
 
     with tab1:
         st.markdown("**Local:** create `.streamlit/secrets.toml` in the project root:")
-        st.code("""OPENAI_API_KEY  = "sk-proj-..."
-TAVILY_API_KEY  = "tvly-dev-..."
-# ANTHROPIC_API_KEY = "sk-ant-..."  # only if LLM_PROVIDER=anthropic""", language="toml")
+        st.code("""OPENAI_API_KEY = "sk-proj-..."
+TAVILY_API_KEY = "tvly-dev-..."
+""", language="toml")
         st.markdown("**Streamlit Cloud:** go to *App Settings → Secrets* and paste the same TOML.")
 
     with tab2:
         st.markdown("Edit `.env` in the project root:")
         st.code("""OPENAI_API_KEY=sk-proj-...
 TAVILY_API_KEY=tvly-dev-...
-# ANTHROPIC_API_KEY=sk-ant-...  # optional""", language="bash")
+""", language="bash")
 
 
 # ---------------------------------------------------------------------------
@@ -201,8 +198,7 @@ with st.sidebar:
         for key in missing:
             st.warning(f"Missing: `{key}`")
     else:
-        provider_label = config.LLM_PROVIDER.upper()
-        st.success(f"All keys set ✓ ({provider_label})")
+        st.success("All keys set ✓ (OpenAI)")
 
     st.divider()
 
@@ -261,7 +257,7 @@ with st.sidebar:
 st.markdown(f"""
 <div class="main-header">
     <h1>{config.APP_ICON} ContentBlitz</h1>
-    <p>AI Content Marketing Assistant · {config.LLM_PROVIDER.title()} + LangGraph + Tavily</p>
+    <p>AI Content Marketing Assistant · OpenAI + LangGraph + Tavily</p>
 </div>
 """, unsafe_allow_html=True)
 
